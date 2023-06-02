@@ -20,7 +20,7 @@ export class BookService {
   }
 
   async create(data: BookDTO): Promise<BookDTO> {
-    if (this.bookExists(data)) {
+    if (await this.bookExists(data)) {
       throw new Error(`Book already exists`);
     }
 
@@ -33,7 +33,7 @@ export class BookService {
   }
 
   async update(id: string, data: BookDTO): Promise<BookDTO> {
-    if (!this.bookExists(data)) {
+    if (!(await this.bookExists(data))) {
       throw new Error(`Book doesn't exist`);
     }
     return await this.prisma.book.update({
