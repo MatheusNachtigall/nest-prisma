@@ -30,7 +30,7 @@ export class BookService {
   }
 
   async get(): Promise<Array<Book>> {
-    return await this.prisma.book.findMany();
+    return await this.prisma.book.findMany({ include: { category: true } });
   }
 
   async update(id: string, data: UpdateBookDto): Promise<Book> {
