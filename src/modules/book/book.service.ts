@@ -1,39 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { BookDTO } from './book.dto';
 import { PrismaService } from 'src/database/PrismaService';
+import { Book } from './entities/book.entity';
+import { CreateBookDto } from './dto/create-book.dto';
+import { UpdateBookDto } from './dto/update-book.dto';
 
 @Injectable()
 export class BookService {
   constructor(private prisma: PrismaService) {}
 
-  private async bookExists(data: BookDTO): Promise<boolean> {
-    const bookExists: BookDTO = await this.prisma.book.findFirst({
+  private async bookExists({ id, bar_code }): Promise<boolean> {
+    const bookExists: Book = await this.prisma.book.findFirst({
       where: {
         OR: {
-          bar_code: data.bar_code || '',
-          id: data.id || '',
+          bar_code,
+          id,
         },
       },
     });
     return !!bookExists;
   }
 
-  async create(data: BookDTO): Promise<BookDTO> {
-    if (await this.bookExists(data)) {
+  async create(data: CreateBookDto): Promise<Book> {
+    if (await this.bookExists({ id: '', bar_code: data.bar_code })) {
       throw new Error(`Book already exists`);
     }
 
-    const book = await this.prisma.book.create({ data });
+    const book: Book = await this.prisma.book.create({ data });
     return book;
   }
 
-  async get(): Promise<Array<BookDTO>> {
+  async get(): Promise<Array<Book>> {
     return await this.prisma.book.findMany();
   }
 
-  async update(id: string, data: BookDTO): Promise<BookDTO> {
-    if (!(await this.bookExists(data))) {
+  async update(id: string, data: UpdateBookDto): Promise<Book> {
+    if (!(await this.bookExists({ id, bar_code: data.bar_code }))) {
       throw new Error(`Book doesn't exist`);
     }
     return await this.prisma.book.update({
