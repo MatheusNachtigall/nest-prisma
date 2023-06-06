@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/database/PrismaService';
+import { PrismaService } from '../../database/PrismaService';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -8,15 +8,22 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 export class CategoryService {
   constructor(private prisma: PrismaService) {}
 
-  private async categoryExists({ id }): Promise<boolean> {
+  private async categoryExistsByID({ id }): Promise<boolean> {
     const categoryExists: Category = await this.prisma.category.findUnique({
-      where: { id: id },
+      where: { id },
+    });
+    return !!categoryExists;
+  }
+
+  private async categoryExistsByName({ name }): Promise<boolean> {
+    const categoryExists: Category = await this.prisma.category.findFirst({
+      where: { name },
     });
     return !!categoryExists;
   }
 
   async create(data: CreateCategoryDto): Promise<Category> {
-    if (await this.categoryExists({ id: '' })) {
+    if (await this.categoryExistsByName({ name: data.name })) {
       throw new Error(`Category already exists`);
     }
 
@@ -33,7 +40,7 @@ export class CategoryService {
   }
 
   async update(id: string, data: UpdateCategoryDto): Promise<Category> {
-    if (!(await this.categoryExists({ id }))) {
+    if (!(await this.categoryExistsByID({ id }))) {
       throw new Error(`Category doesn't exist`);
     }
     return await this.prisma.category.update({
@@ -45,7 +52,7 @@ export class CategoryService {
   }
 
   async remove(id: string): Promise<void> {
-    if (!(await this.categoryExists({ id }))) {
+    if (!(await this.categoryExistsByID({ id }))) {
       throw new Error(`Category doesn't exist`);
     }
     await this.prisma.category.delete({
