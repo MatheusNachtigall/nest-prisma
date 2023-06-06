@@ -10,4 +10,7 @@ export class CreateBookDto {
 
   @IsString()
   bar_code: string;
+
+  @IsString()
+  category_id: string;
 }
