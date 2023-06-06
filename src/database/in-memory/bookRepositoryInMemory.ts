@@ -17,6 +17,7 @@ class BooksRepositoryInMemory {
       name: book.name,
       description: book.description,
       bar_code: book.bar_code,
+      category_id: book.category_id,
       created_at: new Date(),
       updated_at: new Date(),
     };
