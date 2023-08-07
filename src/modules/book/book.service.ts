@@ -3,6 +3,7 @@ import { PrismaService } from '../../database/PrismaService';
 import { Book } from './entities/book.entity';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class BookService {
@@ -20,7 +21,8 @@ export class BookService {
     return !!bookExists;
   }
 
-  async create(data: CreateBookDto): Promise<Book> {
+  // async create(data: CreateBookDto): Promise<Book> {
+  async create(data: Prisma.BookCreateInput): Promise<Book> {
     if (await this.bookExists({ id: '', bar_code: data.bar_code })) {
       throw new Error(`Book already exists`);
     }

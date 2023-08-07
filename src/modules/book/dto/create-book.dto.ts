@@ -12,5 +12,5 @@ export class CreateBookDto {
   bar_code: string;
 
   @IsString()
-  category_id: string;
+  category_id?: string;
 }
