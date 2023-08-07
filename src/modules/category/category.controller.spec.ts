@@ -1,34 +1,37 @@
 /**
- * asdasd@jest-environment ./prisma/prisma-environment-jest
+ * @jest-environment ../../../prisma/prisma-environment-jest
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { CategoryController } from './category.controller';
-import { CategoryService } from './category.service';
-import { PrismaService } from '../../database/PrismaService';
+import { INestApplication } from '@nestjs/common';
+import { AppModule } from '../../app.module';
+import * as request from 'supertest';
 
-describe('CategoryController', () => {
-  let controller: CategoryController;
+describe('Category (e2e)', () => {
+  let app: INestApplication;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [CategoryController],
-      providers: [CategoryService, PrismaService],
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
     }).compile();
 
-    controller = module.get<CategoryController>(CategoryController);
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+    app = moduleFixture.createNestApplication();
+    await app.init();
   });
 
   it('should create a category', async () => {
-    expect(await controller.create({ name: 'Eletrodomesticos' })).toEqual({
+    const response: any = await request(app.getHttpServer())
+      .post('/category')
+      .send({ name: 'Adventure' })
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(201);
+
+    expect(response.body).toEqual({
       id: expect.any(String),
-      name: 'Eletrodomesticos',
-      created_at: expect.any(Date),
-      updated_at: expect.any(Date),
+      name: 'Adventure',
+      created_at: expect.any(String),
+      updated_at: expect.any(String),
     });
   });
 
